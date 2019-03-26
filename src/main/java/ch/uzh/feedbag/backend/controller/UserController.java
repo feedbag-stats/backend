@@ -1,6 +1,6 @@
 package ch.uzh.feedbag.backend.controller;
 
-import ch.uzh.feedbag.shared.entity.user.User;
+import ch.uzh.feedbag.backend.entity.User;
 import ch.uzh.feedbag.backend.repository.UserRepository;
 import ch.uzh.feedbag.backend.service.UserService;
 import org.springframework.web.bind.annotation.GetMapping;

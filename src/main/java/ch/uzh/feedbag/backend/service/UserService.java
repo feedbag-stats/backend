@@ -1,6 +1,6 @@
 package ch.uzh.feedbag.backend.service;
 
-import ch.uzh.feedbag.shared.entity.user.User;
+import ch.uzh.feedbag.backend.entity.User;
 import ch.uzh.feedbag.backend.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
