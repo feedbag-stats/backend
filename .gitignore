@@ -6,6 +6,7 @@
 # Package Files #
 *.jar
 *.war
+!/gradle/wrapper/gradle-wrapper.jar
 *.ear
 
 #Gradle temporary files
