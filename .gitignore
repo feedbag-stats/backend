@@ -27,7 +27,7 @@ blog/bin/
 #script testing files
 **/Events-170301-2
 **/Events-170301-backup
-
+**/Events-170301-backup.txt
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
