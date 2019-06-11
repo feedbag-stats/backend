@@ -33,4 +33,8 @@ public class UserService {
         log.debug("Created Information for User: {}", newUser);
         return newUser;
     }
+
+    public User findByToken(String token) {
+        return this.userRepository.findByToken(token);
+    }
 }
