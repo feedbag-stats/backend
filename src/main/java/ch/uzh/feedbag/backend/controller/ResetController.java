@@ -15,7 +15,7 @@ import java.util.Random;
 @RestController
 public class ResetController {
 
-    private static final int NUMBER_OF_USERS = 5;
+    private static final int NUMBER_OF_USERS = 2;
 
     private ActivityEntryRepository activityEntryRepository;
     private UserService userService;
