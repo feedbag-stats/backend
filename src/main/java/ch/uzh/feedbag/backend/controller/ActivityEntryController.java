@@ -25,19 +25,25 @@ public class ActivityEntryController {
     }
 
     @GetMapping("/activity/all")
-    ResponseEntity<?> all(@RequestParam int start, @RequestParam int end) {
+    ResponseEntity<?> all(@RequestHeader(name = "Authorization") String token /*@RequestParam int start, @RequestParam int end*/) {
+        User user = this.userService.findByToken(token);
+
+/*
         System.out.println(start);
         System.out.println(end);
 
-        List<ActivityEntry> acitivites = repository.findTimespanUser(start, end);
+ */
+        List<ActivityEntry> acitivites = repository.findByUser(user);
 
         return new ResponseEntity<>(acitivites, HttpStatus.OK);
     }
 
     @GetMapping("/activity/aggregated")
-    ResponseEntity<?> aggregated() {
+    ResponseEntity<?> aggregated(@RequestHeader(name = "Authorization") String token /*@RequestParam int start, @RequestParam int end*/) {
 
-        List<AggregatedActivity> aggregated = repository.aggregate();
+        User user = this.userService.findByToken(token);
+
+        List<AggregatedActivity> aggregated = repository.aggregate(user);
         return new ResponseEntity<>(aggregated, HttpStatus.OK);
     }
 }
