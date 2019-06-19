@@ -1,14 +1,18 @@
 package ch.uzh.feedbag.backend.controller;
 
-import ch.uzh.feedbag.backend.entity.ActivityEntry;
+import ch.uzh.feedbag.backend.entity.ActivityInterval;
+import ch.uzh.feedbag.backend.entity.ActivityType;
 import ch.uzh.feedbag.backend.entity.User;
-import ch.uzh.feedbag.backend.repository.ActivityEntryRepository;
+import ch.uzh.feedbag.backend.repository.ActivityIntervalRepository;
+import ch.uzh.feedbag.backend.repository.UserRepository;
 import ch.uzh.feedbag.backend.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -17,17 +21,20 @@ public class ResetController {
 
     private static final int NUMBER_OF_USERS = 2;
 
-    private ActivityEntryRepository activityEntryRepository;
+    private ActivityIntervalRepository ActivityIntervalRepository;
     private UserService userService;
+    private UserRepository userRepository;
 
-    ResetController(ActivityEntryRepository activityEntryRepository, UserService userService) {
-        this.activityEntryRepository = activityEntryRepository;
+    ResetController(ActivityIntervalRepository activityIntervalRepository, UserService userService, UserRepository userRepository) {
+        this.ActivityIntervalRepository = activityIntervalRepository;
+        this.userRepository = userRepository;
         this.userService = userService;
     }
 
     @PostMapping("/reset-database")
     ResponseEntity<String> resetDatabase() {
-        this.activityEntryRepository.truncate();
+        this.ActivityIntervalRepository.truncate();
+        this.userRepository.truncate();
         return new ResponseEntity<>("OK", HttpStatus.OK);
     }
 
@@ -44,10 +51,10 @@ public class ResetController {
             int offset = 1552435200;
 
             int spanStart = 0;
-            String previousCategory = null;
+            ActivityType previousCategory = null;
             int index = 0;
 
-            ArrayList<ActivityEntry> activities = new ArrayList<>();
+            ArrayList<ActivityInterval> activities = new ArrayList<>();
 
             while (spanStart <= duration) {
                 if (spanStart < 1552464000 - offset) {
@@ -59,21 +66,23 @@ public class ResetController {
                 if (spanStart >= 1552510800 - offset) {
                     break;
                 }
-                int randomDuration = getRandomNumberInRange(20, 200);
-                String randomCategory = ActivityEntry.CATEGORIES[getRandomNumberInRange(0, ActivityEntry.CATEGORIES.length)];
+                Duration randomDuration = Duration.ofMillis(getRandomNumberInRange(20, 200));
+                ActivityType randomCategory = ActivityType.getAllTypes()[getRandomNumberInRange(0, ActivityType.getAllTypes().length)];
                 if (randomCategory == previousCategory) {
                     activities.get(index - 1).addDuration(randomDuration);
                 } else {
-                    ActivityEntry newActiviy = new ActivityEntry(spanStart + offset, spanStart + randomDuration + offset, randomCategory, createdUser);
+                    Instant start = Instant.ofEpochSecond(spanStart+offset);
+                    Instant end = Instant.ofEpochSecond(spanStart + randomDuration.toMillis() + offset);
+                    ActivityInterval newActiviy = new ActivityInterval(start,end, randomCategory, createdUser);
                     activities.add(newActiviy);
                     index++;
                 }
                 previousCategory = randomCategory;
-                spanStart += randomDuration;
+                spanStart += randomDuration.toMillis();
             }
 
-            for (ActivityEntry entry : activities) {
-                this.activityEntryRepository.save(entry);
+            for (ActivityInterval entry : activities) {
+                this.ActivityIntervalRepository.save(entry);
             }
         }
 

@@ -1,13 +1,10 @@
 package ch.uzh.feedbag.backend.entity;
 
+import javax.persistence.*;
 import java.io.Serializable;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-
 @Entity
+@Table(name="user")
 public class User implements Serializable {
 	
 
@@ -66,5 +63,9 @@ public class User implements Serializable {
 		}
 		User user = (User) o;
 		return this.getId().equals(user.getId());
+	}
+	
+	public String toString() {
+		return "User("+id+", "+name+", "+username+", "+token+")";
 	}
 }

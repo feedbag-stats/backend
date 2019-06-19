@@ -1,30 +1,31 @@
 package ch.uzh.feedbag.backend.entity;
 
 import java.io.Serializable;
+import java.time.Duration;
 
 public class AggregatedActivity implements Serializable {
 
-    private long duration;
-    private String type;
+    private Duration duration;
+    private ActivityType type;
 
-    public AggregatedActivity(String type, long duration ) {
+    public AggregatedActivity(ActivityType type, Duration duration ) {
         this.type = type;
         this.duration = duration;
     }
 
-    public long getDuration() {
+    public Duration getDuration() {
         return duration;
     }
 
-    public void setDuration(long duration) {
+    public void setDuration(Duration duration) {
         this.duration = duration;
     }
 
-    public String getType() {
+    public ActivityType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(ActivityType type) {
         this.type = type;
     }
 }
