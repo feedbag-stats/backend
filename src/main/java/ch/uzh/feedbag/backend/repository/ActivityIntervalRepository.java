@@ -14,7 +14,7 @@ public interface ActivityIntervalRepository extends CrudRepository<ActivityInter
 	List<ActivityInterval> findByType(String type);
 
 
-	@Query(value = "SELECT new ch.uzh.feedbag.backend.entity.AggregatedActivity(a.type, SUM(a.end - a.begin)) FROM ActivityInterval a WHERE a.user = ?1 GROUP BY a.type")
+	@Query(value = "SELECT new ch.uzh.feedbag.backend.entity.AggregatedActivity(a.type, cast((SUM(a.end - a.begin)) as integer)) FROM ActivityInterval a WHERE a.user = ?1 GROUP BY a.type")
 	List<AggregatedActivity> aggregate(User user);
 
 	@Modifying

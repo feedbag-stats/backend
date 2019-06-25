@@ -43,8 +43,8 @@ public class ActivityEntryController {
 
         User user = this.userService.findByToken(token);
 
-        //List<AggregatedActivity> aggregated = repository.aggregate(user);
-        List<AggregatedActivity> aggregated = new ArrayList<>();
+        List<AggregatedActivity> aggregated = repository.aggregate(user);
+        //List<AggregatedActivity> aggregated = new ArrayList<>();
         return new ResponseEntity<>(aggregated, HttpStatus.OK);
     }
 }
