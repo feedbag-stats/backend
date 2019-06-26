@@ -1,9 +1,6 @@
 package ch.uzh.feedbag.backend.entity;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.*;
 import java.time.Instant;
 import java.util.Comparator;
 
@@ -17,8 +14,8 @@ public abstract class TaggedInstantBase {
 	
 	@Column(nullable=false)
 	protected final Instant instant;
-	
-	@Column(nullable=false)
+
+	@ManyToOne(optional = false)
 	protected User user;
 	
 	public static final Comparator<TaggedInstantBase> INSTANT_COMPARATOR = new Comparator<TaggedInstantBase>() {

@@ -1,0 +1,32 @@
+package ch.uzh.feedbag.backend.entity;
+
+public enum EventType {
+    ACTIVITY_EVENT,
+    COMMAND_EVENT,
+    COMPLETION_EVENT,
+    BUILD_EVENT,
+    DEBUGGER_EVENT,
+    DOCUMENT_EVENT,
+    EDIT_EVENT,
+    FIND_EVENT,
+    IDESTATE_EVENT,
+    SOLUTION_EVENT,
+    WINDOW_EVENT,
+    VERSION_CONTROL_EVENT,
+    USER_PROFILE_EVENT,
+    NAVIGATION_EVENT,
+    SYSTEM_EVENT,
+    TEST_RUN_EVENT,
+    INFO_EVENT,
+    ERROR_EVENT;
+
+    public static EventType[] getAllTypes() {
+        EventType[] _a = new EventType[]{ACTIVITY_EVENT, COMMAND_EVENT, COMPLETION_EVENT, BUILD_EVENT, DEBUGGER_EVENT, DOCUMENT_EVENT, EDIT_EVENT, FIND_EVENT, IDESTATE_EVENT, SOLUTION_EVENT, WINDOW_EVENT, VERSION_CONTROL_EVENT, USER_PROFILE_EVENT, NAVIGATION_EVENT, SYSTEM_EVENT, TEST_RUN_EVENT, INFO_EVENT, ERROR_EVENT};
+        return _a;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
+}

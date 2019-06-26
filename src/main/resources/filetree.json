@@ -1,0 +1,98 @@
+{
+  "solutions": [
+    {
+      "name": "Solution 1",
+      "projects": [
+        {
+          "name": "Project 1",
+          "packages": [
+            {
+              "name": "Package 1",
+              "files": [
+                "File1.java",
+                "File2.java",
+                "File3.java"
+              ]
+            },
+            {
+              "name": "Package 2",
+              "files": [
+                "File4.java",
+                "File5.java",
+                "File6.java"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Project 2",
+          "packages": [
+            {
+              "name": "Package 3",
+              "files": [
+                "File7.java",
+                "File8.java",
+                "File9.java"
+              ]
+            },
+            {
+              "name": "Package 4",
+              "files": [
+                "File10.java",
+                "File11.java",
+                "File12.java"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Solution 2",
+      "projects": [
+        {
+          "name": "Project 1",
+          "packages": [
+            {
+              "name": "Package 1",
+              "files": [
+                "File1.java",
+                "File2.java",
+                "File3.java"
+              ]
+            },
+            {
+              "name": "Package 2",
+              "files": [
+                "File4.java",
+                "File5.java",
+                "File6.java"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Project 2",
+          "packages": [
+            {
+              "name": "Package 3",
+              "files": [
+                "File7.java",
+                "File8.java",
+                "File9.java"
+              ]
+            },
+            {
+              "name": "Package 4",
+              "files": [
+                "File10.java",
+                "File11.java",
+                "File12.java"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
