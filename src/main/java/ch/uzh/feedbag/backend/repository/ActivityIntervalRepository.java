@@ -8,14 +8,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 
 public interface ActivityIntervalRepository extends CrudRepository<ActivityInterval, Long> {
 	List<ActivityInterval> findByType(String type);
 
 
-	@Query(value = "SELECT new ch.uzh.feedbag.backend.entity.AggregatedActivity(a.type, cast((SUM(a.end - a.begin)) as integer)) FROM ActivityInterval a WHERE a.user = ?1 GROUP BY a.type")
-	List<AggregatedActivity> aggregate(User user);
+	@Query(value = "SELECT new ch.uzh.feedbag.backend.entity.AggregatedActivity(a.type, cast((SUM(CASE WHEN 1=1 THEN TIMESTAMPDIFF(SECOND,a.begin,a.end) ELSE 0 END)) as integer)) FROM ActivityInterval a WHERE a.user = ?1 AND a.begin > ?2 AND a.end < ?3 GROUP BY a.type")
+	List<AggregatedActivity> aggregate(User user, Instant start, Instant end);
 
 	@Modifying
 	@Transactional

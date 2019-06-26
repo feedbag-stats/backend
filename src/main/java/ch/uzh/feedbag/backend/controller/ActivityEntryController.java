@@ -5,11 +5,15 @@ import ch.uzh.feedbag.backend.entity.AggregatedActivity;
 import ch.uzh.feedbag.backend.entity.User;
 import ch.uzh.feedbag.backend.repository.ActivityIntervalRepository;
 import ch.uzh.feedbag.backend.service.UserService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -39,11 +43,23 @@ public class ActivityEntryController {
 
 
     @GetMapping("/activity/aggregated")
-    ResponseEntity<?> aggregated(@RequestHeader(name = "Authorization") String token /*@RequestParam int start, @RequestParam int getEnd*/) {
+    ResponseEntity<?> aggregated(@RequestHeader(name = "Authorization") String token, @RequestParam("start") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date startDate, @RequestParam("end") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate) {
+
+        //TODO: Fix Deprication
+        startDate.setHours(0);
+        startDate.setMinutes(0);
+        startDate.setSeconds(0);
+
+        endDate.setHours(23);
+        endDate.setMinutes(59);
+        endDate.setSeconds(59);
+
+        Instant start = startDate.toInstant();
+        Instant end = endDate.toInstant();
 
         User user = this.userService.findByToken(token);
 
-        List<AggregatedActivity> aggregated = repository.aggregate(user);
+        List<AggregatedActivity> aggregated = repository.aggregate(user, start, end);
         //List<AggregatedActivity> aggregated = new ArrayList<>();
         return new ResponseEntity<>(aggregated, HttpStatus.OK);
     }

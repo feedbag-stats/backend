@@ -14,12 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Random;
 
 @RestController
 public class ResetController {
 
     private static final int NUMBER_OF_USERS = 2;
+    private static final int NUMBER_OF_DAYS = 5;
 
     private ActivityIntervalRepository ActivityIntervalRepository;
     private UserService userService;
@@ -47,25 +49,21 @@ public class ResetController {
             user.setUsername("user" + i);
             User createdUser = this.userService.createUser(user);
 
-            int duration = 60 * 60 * 24;
-            int offset = 1552435200;
+            long duration = 60 * 60 * 24 * NUMBER_OF_DAYS;
+            Date today = new Date();
+            today.setSeconds(0);
+            today.setMinutes(0);
+            today.setHours(0);
 
-            int spanStart = 0;
+            long offset = (long) today.getTime()/1000;
+
+            long spanStart = 0;
             ActivityType previousCategory = null;
             int index = 0;
 
             ArrayList<ActivityInterval> activities = new ArrayList<>();
 
             while (spanStart <= duration) {
-                if (spanStart < 1552464000 - offset) {
-                    spanStart = 1552464000 - offset;
-                }
-                if (spanStart >= 1552478400 - offset && spanStart < 1552483800 - offset) {
-                    spanStart = 1552483800 - offset;
-                }
-                if (spanStart >= 1552510800 - offset) {
-                    break;
-                }
                 Duration randomDuration = Duration.ofMillis(getRandomNumberInRange(20, 200));
                 ActivityType randomCategory = ActivityType.getAllTypes()[getRandomNumberInRange(0, ActivityType.getAllTypes().length)];
                 if (randomCategory == previousCategory) {
@@ -81,9 +79,7 @@ public class ResetController {
                 spanStart += randomDuration.toMillis();
             }
 
-            for (ActivityInterval entry : activities) {
-                this.ActivityIntervalRepository.save(entry);
-            }
+            this.ActivityIntervalRepository.saveAll(activities);
         }
 
         return new ResponseEntity<>("OK", HttpStatus.OK);
