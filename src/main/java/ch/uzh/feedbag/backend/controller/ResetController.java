@@ -1,16 +1,14 @@
 package ch.uzh.feedbag.backend.controller;
 
 import ch.uzh.feedbag.backend.entity.*;
-import ch.uzh.feedbag.backend.repository.ActivityIntervalRepository;
-import ch.uzh.feedbag.backend.repository.EditLocationRepository;
-import ch.uzh.feedbag.backend.repository.EventTimeStampRepository;
-import ch.uzh.feedbag.backend.repository.UserRepository;
+import ch.uzh.feedbag.backend.repository.*;
 import ch.uzh.feedbag.backend.service.UserService;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,13 +31,15 @@ public class ResetController {
     private UserRepository userRepository;
     private EditLocationRepository editLocationRepository;
     private EventTimeStampRepository eventTimeStampRepository;
+    private AllEventsRepository allEventsRepository;
 
-    ResetController(ActivityIntervalRepository activityIntervalRepository, UserService userService, UserRepository userRepository, EditLocationRepository editLocationRepository, EventTimeStampRepository eventTimeStampRepository) {
+    ResetController(ActivityIntervalRepository activityIntervalRepository, UserService userService, UserRepository userRepository, EditLocationRepository editLocationRepository, EventTimeStampRepository eventTimeStampRepository, AllEventsRepository allEventsRepository) {
         this.ActivityIntervalRepository = activityIntervalRepository;
         this.userRepository = userRepository;
         this.userService = userService;
         this.editLocationRepository = editLocationRepository;
         this.eventTimeStampRepository = eventTimeStampRepository;
+        this.allEventsRepository = allEventsRepository;
     }
 
     @PostMapping("/reset-database")
@@ -175,5 +175,36 @@ public class ResetController {
         this.editLocationRepository.saveAll(locations);
 
         return locations;
+    }
+
+    @GetMapping("/generate_random_events")
+    ResponseEntity<String> generateRandomEvents() {
+        Date today = new Date();
+        today.setSeconds(0);
+        today.setMinutes(0);
+        today.setHours(0);
+
+        long offset = (long) today.getTime() / 1000;
+        long spanStart = 0;
+
+        int NUMBER_OF_EVENTS = 1000;
+
+        Iterable<User> users = this.userRepository.findAll();
+        List<AllEvents> events = new ArrayList<>();
+
+        for (User user : users) {
+            for (int i = 0; i < NUMBER_OF_EVENTS; i++) {
+                Instant instant = Instant.ofEpochSecond(spanStart + offset);
+                String eventType = EventType.getAllTypes()[getRandomNumberInRange(0, EventType.getAllTypes().length)].toString();
+                AllEvents event = new AllEvents(instant, user, eventType);
+                events.add(event);
+
+                Duration randomDuration = Duration.ofMillis(getRandomNumberInRange(20, 200));
+                spanStart = spanStart + randomDuration.toMillis();
+            }
+        }
+        this.allEventsRepository.saveAll(events);
+
+        return new ResponseEntity<>("OK", HttpStatus.OK);
     }
 }
