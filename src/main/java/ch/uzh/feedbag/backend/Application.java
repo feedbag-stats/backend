@@ -16,10 +16,11 @@ import java.util.TimeZone;
 public class Application {
 
     @PostConstruct
-    public void init(){
+    public void init() {
         // Setting Spring Boot SetTimeZone
         TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
     }
+
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
@@ -29,7 +30,7 @@ public class Application {
         return new WebMvcConfigurerAdapter() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**").allowedOrigins("*");
+                registry.addMapping("/**").allowedOrigins("*").allowedMethods("GET", "POST", "PUT", "DELETE");
             }
         };
     }
