@@ -32,8 +32,13 @@ public class DailyTDDCyclesController {
     }
 
     @GetMapping("/tdd_cycles")
-    ResponseEntity<?> tddCycles(@RequestHeader(name = "Authorization") String token, @RequestParam("start") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate, @RequestParam("end") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+    ResponseEntity<?> tddCycles(@RequestHeader(name = "Authorization") String token, @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         User user = this.userService.findByToken(token);
+
+        int numberOfWeeks = 18;
+
+        LocalDate startDate = LocalDate.from(date).minusDays(7 * numberOfWeeks);
+        LocalDate endDate = date;
 
         List<DailyTDDCycles> tddCycles = repository.findByTimespanUser(user,startDate,endDate);
 
