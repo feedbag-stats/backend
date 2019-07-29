@@ -1,5 +1,6 @@
 package ch.uzh.feedbag.backend.repository;
 
+import ch.uzh.feedbag.backend.entity.AggregatedZipMapping;
 import ch.uzh.feedbag.backend.entity.User;
 import ch.uzh.feedbag.backend.entity.ZipMapping;
 import org.springframework.data.jpa.repository.Modifying;
@@ -16,17 +17,27 @@ import java.util.Optional;
 @Repository("zipMapping")
 public interface ZipMappingRepository extends CrudRepository<ZipMapping, Long> {
 
-	@Query(value = "SELECT z FROM ZipMapping z WHERE z.user = :user ORDER BY z.day DESC")
-	List<ZipMapping> findByUser(@Param("user") User user);
+    @Query(value = "SELECT z FROM ZipMapping z WHERE z.user = :user ORDER BY z.day DESC")
+    List<ZipMapping> findByUser(@Param("user") User user);
 
-	@Modifying
-	@Transactional
-	@Query(value = "DELETE FROM ZipMapping z")
-	void truncate();
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM ZipMapping z")
+    void truncate();
 
-	@Query(value = "SELECT MAX(z.day) FROM ZipMapping z WHERE z.user = :user")
-	LocalDate findLatestByUser(User user);
+    @Query(value = "SELECT MAX(z.day) FROM ZipMapping z WHERE z.user = :user")
+    LocalDate findLatestByUser(User user);
 
-	@Query(value = "SELECT z FROM ZipMapping z WHERE z.user = :user AND z.markedForDelete = true")
-	List<ZipMapping> findByMarkedForDeleteUser(User user);
+    @Query(value = "SELECT z FROM ZipMapping z WHERE z.user = :user AND z.markedForDelete = true")
+    List<ZipMapping> findByMarkedForDeleteUser(User user);
+
+    @Query(value = "SELECT new ch.uzh.feedbag.backend.entity.AggregatedZipMapping(" +
+            "cast(DATE(z.day) as date), COUNT(z), MAX(z.markedForDelete)) " +
+            "FROM ZipMapping z " +
+            "WHERE z.user = :user " +
+            "GROUP BY cast(DATE(z.day) as date)")
+    List<AggregatedZipMapping> findAggregatedByUser(@Param("user") User user);
+
+    @Query(value = "SELECT z FROM ZipMapping z WHERE z.user = :user AND z.day = :date")
+    List<ZipMapping> findByUserDate(@Param("user") User user, @Param("date") LocalDate date);
 }

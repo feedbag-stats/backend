@@ -3,11 +3,13 @@ package ch.uzh.feedbag.backend.controller;
 import ch.uzh.feedbag.backend.entity.*;
 import ch.uzh.feedbag.backend.repository.ZipMappingRepository;
 import ch.uzh.feedbag.backend.service.UserService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @RestController
@@ -29,33 +31,35 @@ public class ZipMappingController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
 
-        List<ZipMapping> zips = repository.findByUser(user);
+        List<AggregatedZipMapping> zips = repository.findAggregatedByUser(user);
 
         return new ResponseEntity<>(zips, HttpStatus.OK);
     }
 
-    @PostMapping("/zip/{id}")
-    ResponseEntity<?> toggleZipStatus(@RequestHeader(name = "Authorization") String token, @PathVariable long id) {
+    @PostMapping("/zips/toggle_status")
+    ResponseEntity<?> toggleZipStatus(@RequestHeader(name = "Authorization") String token, @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         User user = this.userService.findByToken(token);
 
         if (null == user) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
 
-        Optional<ZipMapping> optionalZip = repository.findById(id);
+        List<ZipMapping> zipMappings = repository.findByUserDate(user, date);
 
-        if (optionalZip.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Zip not found");
+        boolean isMarkForDelete = false;
+
+        for (ZipMapping zipMapping : zipMappings) {
+            isMarkForDelete |= zipMapping.isMarkedForDelete();
         }
 
-        ZipMapping zipMapping = optionalZip.get();
-
-        if (zipMapping.getUser().getId() != user.getId()) {
-            throw new ResponseStatusException(HttpStatus.METHOD_NOT_ALLOWED, "This is not allowed");
+        for (ZipMapping zipMapping : zipMappings) {
+            if (isMarkForDelete) {
+                zipMapping.setMarkedForDelete(false);
+            } else {
+                zipMapping.setMarkedForDelete(true);
+            }
+            repository.save(zipMapping);
         }
-
-        zipMapping.setMarkedForDelete(!zipMapping.isMarkedForDelete());
-        repository.save(zipMapping);
 
         return new ResponseEntity<>(true, HttpStatus.OK);
     }
