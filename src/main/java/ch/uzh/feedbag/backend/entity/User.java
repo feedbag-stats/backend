@@ -1,10 +1,13 @@
 package ch.uzh.feedbag.backend.entity;
 
+import org.junit.Ignore;
+
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDate;
 
 @Entity
-@Table(name="user")
+@Table(name="User")
 public class User implements Serializable {
 	
 
@@ -22,6 +25,12 @@ public class User implements Serializable {
 	
 	@Column(nullable = false, unique = true) 
 	private String token;
+
+	@Transient
+	private LocalDate lastUpload = null;
+
+	@Transient
+	private boolean isRecalculatingStats = false;
 
 	public Long getId() {
 		return id;
@@ -53,6 +62,22 @@ public class User implements Serializable {
 
 	public void setToken(String token) {
 		this.token = token;
+	}
+
+	public LocalDate getLastUpload() {
+		return lastUpload;
+	}
+
+	public void setLastUpload(LocalDate lastUpload) {
+		this.lastUpload = lastUpload;
+	}
+
+	public boolean isRecalculatingStats() {
+		return isRecalculatingStats;
+	}
+
+	public void setRecalculatingStats(boolean recalculatingStats) {
+		isRecalculatingStats = recalculatingStats;
 	}
 
 	@Override

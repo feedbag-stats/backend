@@ -196,7 +196,7 @@ public class ResetController {
             for (int i = 0; i < NUMBER_OF_EVENTS; i++) {
                 Instant instant = Instant.ofEpochSecond(spanStart + offset);
                 String eventType = EventType.getAllTypes()[getRandomNumberInRange(0, EventType.getAllTypes().length)].toString();
-                AllEvents event = new AllEvents(instant, user, eventType);
+                AllEvents event = new AllEvents(instant, user, eventType, "","");
                 events.add(event);
 
                 Duration randomDuration = Duration.ofMillis(getRandomNumberInRange(20, 200));

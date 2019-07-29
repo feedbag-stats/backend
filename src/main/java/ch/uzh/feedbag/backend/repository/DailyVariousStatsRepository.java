@@ -24,7 +24,7 @@ public interface DailyVariousStatsRepository extends CrudRepository<DailyVarious
 
     @Query(value = "SELECT " +
             "new ch.uzh.feedbag.backend.entity.AggregatedDailyVariousStats(" +
-            "coalesce(AVG(d.totalBuildDurationInMs),0)," +
+            "coalesce(SUM(d.totalBuildDurationInMs)/SUM(d.buildCount),0)," +
             "coalesce(AVG(d.solutionSwitches),0)," +
             "coalesce(AVG(d.packageSwitches),0)," +
             "coalesce(AVG(d.buildCount),0)," +
@@ -35,6 +35,7 @@ public interface DailyVariousStatsRepository extends CrudRepository<DailyVarious
             "coalesce(AVG(d.numSessions),0)," +
             "coalesce(AVG(d.numSessionsLongerThanTenMin),0)," +
             "coalesce(AVG(d.totalSessionDurationMillis),0)," +
+            "coalesce(SUM(d.totalSessionDurationMillis)/SUM(d.numSessions),0)," +
             "coalesce(AVG(d.breaks),0)," +
             "coalesce(AVG(d.filesEdited),0)" +
             ")" +
@@ -47,7 +48,7 @@ public interface DailyVariousStatsRepository extends CrudRepository<DailyVarious
 
     @Query(value = "SELECT " +
             "new ch.uzh.feedbag.backend.entity.AggregatedDailyVariousStats(" +
-            "coalesce(AVG(d.totalBuildDurationInMs),0)," +
+            "coalesce(SUM(d.totalBuildDurationInMs)/SUM(d.buildCount),0)," +
             "coalesce(AVG(d.solutionSwitches),0)," +
             "coalesce(AVG(d.packageSwitches),0)," +
             "coalesce(AVG(d.buildCount),0)," +
@@ -58,6 +59,7 @@ public interface DailyVariousStatsRepository extends CrudRepository<DailyVarious
             "coalesce(AVG(d.numSessions),0)," +
             "coalesce(AVG(d.numSessionsLongerThanTenMin),0)," +
             "coalesce(AVG(d.totalSessionDurationMillis),0)," +
+            "coalesce(SUM(d.totalSessionDurationMillis)/SUM(d.numSessions),0)," +
             "coalesce(AVG(d.breaks),0)," +
             "coalesce(AVG(d.filesEdited),0)" +
             ")" +

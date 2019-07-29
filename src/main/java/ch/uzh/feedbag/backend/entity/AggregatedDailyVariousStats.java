@@ -2,7 +2,7 @@ package ch.uzh.feedbag.backend.entity;
 
 public class AggregatedDailyVariousStats {
 
-    private double totalBuildDurationInMs = 0;
+    private long buildDuration = 0;
     private double solutionSwitches = 0;
     private double packageSwitches = 0;
     private double buildCount = 0;
@@ -13,6 +13,7 @@ public class AggregatedDailyVariousStats {
     private double numSessions = 0;
     private double numSessionsLongerThanTenMin = 0;
     private double totalSessionDurationMillis = 0;
+    private long sessionDuration = 0;
     private double breaks = 0;
     private double filesEdited = 0;
 
@@ -20,7 +21,7 @@ public class AggregatedDailyVariousStats {
     }
 
     public AggregatedDailyVariousStats(
-            double totalBuildDurationInMs,
+            long buildDuration,
             double solutionSwitches,
             double packageSwitches,
             double buildCount,
@@ -31,10 +32,11 @@ public class AggregatedDailyVariousStats {
             double numSessions,
             double numSessionsLongerThanTenMin,
             double totalSessionDurationMillis,
+            long sessionDuration,
             double breaks,
             double filesEdited
     ) {
-        this.totalBuildDurationInMs = totalBuildDurationInMs;
+        this.buildDuration = buildDuration;
         this.packageSwitches = solutionSwitches;
         this.packageSwitches = packageSwitches;
         this.buildCount = buildCount;
@@ -45,16 +47,17 @@ public class AggregatedDailyVariousStats {
         this.numSessions = numSessions;
         this.numSessionsLongerThanTenMin = numSessionsLongerThanTenMin;
         this.totalSessionDurationMillis = totalSessionDurationMillis;
+        this.sessionDuration = sessionDuration;
         this.breaks = breaks;
         this.filesEdited = filesEdited;
     }
 
-    public double getTotalBuildDurationInMs() {
-        return totalBuildDurationInMs;
+    public long getBuildDuration() {
+        return buildDuration;
     }
 
-    public void setTotalBuildDurationInMs(double totalBuildDurationInMs) {
-        this.totalBuildDurationInMs = totalBuildDurationInMs;
+    public void setBuildDuration(long buildDuration) {
+        this.buildDuration = buildDuration;
     }
 
     public double getSolutionSwitches() {
@@ -135,6 +138,14 @@ public class AggregatedDailyVariousStats {
 
     public void setTotalSessionDurationMillis(double totalSessionDurationMillis) {
         this.totalSessionDurationMillis = totalSessionDurationMillis;
+    }
+
+    public long getSessionDuration() {
+        return sessionDuration;
+    }
+
+    public void setSessionDuration(long sessionDuration) {
+        this.sessionDuration = sessionDuration;
     }
 
     public double getBreaks() {

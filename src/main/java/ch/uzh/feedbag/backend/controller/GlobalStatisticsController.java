@@ -48,6 +48,10 @@ public class GlobalStatisticsController {
             LocalDate startDate = LocalDate.from(endDate).minusDays(interval);
 
             AggregatedDailyVariousStats statsUser = this.repository.findByUserTimespanAggregated(user, startDate, endDate);
+            if (statsUser == null) {
+                statsUser = new AggregatedDailyVariousStats(0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+            }
+
             AggregatedDailyVariousStats statsGlobal = this.repository.findByTimespanAggregated(startDate, endDate);
 
             Map<String, AggregatedDailyVariousStats> intervalStats = new HashMap<>();

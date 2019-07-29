@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name="dailytddcycles")
+@Table(name="DailyTDDCycles")
 public class DailyTDDCycles {
 	@ManyToOne(optional=false)
 	@JsonIgnore

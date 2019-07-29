@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.time.Instant;
 
 @Entity
-@Table(name="activityinterval")
+@Table(name="ActivityInterval")
 public class ActivityInterval extends BaseInterval {
 	
 	@Column(nullable=false)

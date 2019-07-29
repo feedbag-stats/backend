@@ -6,7 +6,7 @@ import javax.persistence.Table;
 import java.time.Instant;
 
 @Entity
-@Table(name="locationinterval")
+@Table(name="LocationInterval")
 public class LocationInterval extends BaseInterval {
 	
 	@ManyToOne(optional=false)
