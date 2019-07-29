@@ -31,6 +31,10 @@ public class AllEvents extends TaggedInstantBase {
 		this.payload = payload;
 	}
 
+	public Long getId() {
+		return id;
+	}
+
 	public String getEvent() {
 		return event;
 	}
@@ -39,16 +43,7 @@ public class AllEvents extends TaggedInstantBase {
 		return version;
 	}
 
-	public void setVersion(String version) {
-		this.version = version;
-	}
-
-	public String getPayload() {
+	private String getPayload() {
 		return payload;
 	}
-
-	public void setPayload(String payload) {
-		this.payload = payload;
-	}
-
 }

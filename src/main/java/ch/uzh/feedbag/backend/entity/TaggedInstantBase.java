@@ -10,7 +10,7 @@ public abstract class TaggedInstantBase {
     @Id
     @GeneratedValue
     @Column(name = "id")
-    private Long id;
+    public Long id;
 
     @Column(nullable = false)
     public Instant instant;

@@ -1,9 +1,6 @@
 package ch.uzh.feedbag.backend.controller;
 
-import ch.uzh.feedbag.backend.entity.ActivityInterval;
-import ch.uzh.feedbag.backend.entity.ActivityType;
-import ch.uzh.feedbag.backend.entity.AggregatedActivity;
-import ch.uzh.feedbag.backend.entity.User;
+import ch.uzh.feedbag.backend.entity.*;
 import ch.uzh.feedbag.backend.repository.ActivityIntervalRepository;
 import ch.uzh.feedbag.backend.service.UserService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -13,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -64,7 +62,7 @@ public class ActivityEntryController {
         // sort by date
         long numberOfDaysBetween = ChronoUnit.DAYS.between(start, end);
 
-        Map<String,Map> days = new HashMap<>();
+        Map<String, Map> days = new HashMap<>();
 
         for (long i = 0; i <= numberOfDaysBetween; i++) {
             Map<ActivityType, Integer> dayMap = new HashMap<>();
@@ -73,7 +71,7 @@ public class ActivityEntryController {
                 dayMap.put(activityType, 0);
             }
 
-            days.put(startDate.toGMTString(),dayMap);
+            days.put(startDate.toGMTString(), dayMap);
 
             // add a day
             Calendar cal = Calendar.getInstance();
@@ -82,12 +80,12 @@ public class ActivityEntryController {
             startDate = cal.getTime();
         }
 
-        for (AggregatedActivity aggregate: aggregatedActivities) {
-            days.get(aggregate.getDate().toGMTString()).put(aggregate.getType(),aggregate.getDuration());
+        for (AggregatedActivity aggregate : aggregatedActivities) {
+            days.get(aggregate.getDate().toGMTString()).put(aggregate.getType(), aggregate.getDuration());
         }
 
         int total = 0;
-        Map<ActivityType,Integer> aggregated = new HashMap<>();
+        Map<ActivityType, Integer> aggregated = new HashMap<>();
         for (ActivityType activityType : ActivityType.getAllTypes()) {
             aggregated.put(activityType, 0);
         }
@@ -102,12 +100,36 @@ public class ActivityEntryController {
         }
 
         Map<String, Object> result = new HashMap<>();
-        result.put("days",days);
-        result.put("aggregated",aggregated);
-        result.put("total",total);
+        result.put("days", days);
+        result.put("aggregated", aggregated);
+        result.put("total", total);
 
         //List<AggregatedActivity> aggregated = new ArrayList<>();
         return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @GetMapping("/activity/heatmap")
+    ResponseEntity<?> tddCycles(@RequestHeader(name = "Authorization") String token, @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate) {
+        User user = this.userService.findByToken(token);
+        int numberOfWeeks = 18;
+
+        //TODO: Fix Deprication
+        endDate.setHours(23);
+        endDate.setMinutes(59);
+        endDate.setSeconds(59);
+
+        Date startDate = (Date) endDate.clone();
+        startDate.setDate(-7 * numberOfWeeks);
+        startDate.setHours(0);
+        startDate.setMinutes(0);
+        startDate.setSeconds(0);
+
+        Instant start = startDate.toInstant();
+        Instant end = endDate.toInstant();
+
+        List<ActivityHeatmapEntry> heatmapEntries = repository.findHeatmapByUser(user, start, end);
+
+        return new ResponseEntity<>(heatmapEntries, HttpStatus.OK);
     }
 
     public static long betweenDates(Date firstDate, Date secondDate) {
