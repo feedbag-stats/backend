@@ -1,8 +1,6 @@
 package ch.uzh.feedbag.backend.repository;
 
-import ch.uzh.feedbag.backend.entity.AllEvents;
-import ch.uzh.feedbag.backend.entity.DailyTDDCycles;
-import ch.uzh.feedbag.backend.entity.User;
+import ch.uzh.feedbag.backend.entity.*;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
@@ -39,4 +37,12 @@ public interface AllEventsRepository extends CrudRepository<AllEvents, Long> {
 	default List<AllEvents> findPreviousEvents(User user, Instant instant) {
 		return findPreviousEventsPaginated(user, instant, PageRequest.of(0, 20));
 	}
+
+	@Query(value = "SELECT new ch.uzh.feedbag.backend.entity.AggregatedEventsVersion(" +
+			"cast(DATE(a.instant) as date), COUNT(a), a.version) " +
+			"FROM AllEvents a " +
+			"WHERE a.instant >= :start " +
+			"AND a.instant <= :end " +
+			"GROUP BY cast(DATE(a.instant) as date), a.version")
+    List<AggregatedEventsVersion> findAggregatedVersionDay(@Param("start") Instant start, @Param("end") Instant end);
 }
