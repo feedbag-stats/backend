@@ -1,16 +1,12 @@
 package ch.uzh.feedbag.backend.entity;
 
 import java.time.Instant;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-
+import javax.persistence.*;
 import org.hibernate.annotations.Type;
 
 @Entity
-@Table(name="AllEvents")
-public class AllEvents extends TaggedInstantBase {
+@Table(name="ActivityEntry")
+public class ActivityEntry extends TaggedInstantBase {
 
 	@Column(nullable=false)
 	private String event;
@@ -22,9 +18,13 @@ public class AllEvents extends TaggedInstantBase {
 	@Type(type="text")
 	private String payload;
 
-	public AllEvents() {}
+	@Column(nullable=false)
+	@Enumerated(EnumType.STRING)
+	private ActivityType type;
 
-	public AllEvents(Instant i, User u, String event, String version, String payload) {
+	public ActivityEntry() {}
+
+	public ActivityEntry(Instant i, User u, String event, String version, String payload) {
 		super(i, u);
 		this.event = event;
 		this.version = version;
@@ -41,6 +41,10 @@ public class AllEvents extends TaggedInstantBase {
 
 	public String getVersion() {
 		return version;
+	}
+
+	public ActivityType getType() {
+		return type;
 	}
 
 	private String getPayload() {

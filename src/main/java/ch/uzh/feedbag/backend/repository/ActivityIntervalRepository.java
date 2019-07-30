@@ -33,7 +33,7 @@ public interface ActivityIntervalRepository extends CrudRepository<ActivityInter
 
 	@Query(value = "SELECT new ch.uzh.feedbag.backend.entity.ActivityHeatmapEntry(" +
 			"COUNT(a), cast(DATE(a.instant) as date)) " +
-			"FROM AllEvents a " +
+			"FROM ActivityEntry a " +
 			"WHERE a.user = :user " +
 			"AND a.instant >= :start " +
 			"AND a.instant <= :end " +

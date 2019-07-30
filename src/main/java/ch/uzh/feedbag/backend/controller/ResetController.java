@@ -31,15 +31,15 @@ public class ResetController {
     private UserRepository userRepository;
     private EditLocationRepository editLocationRepository;
     private EventTimeStampRepository eventTimeStampRepository;
-    private AllEventsRepository allEventsRepository;
+    private ActivityEntryRepository activityEntryRepository;
 
-    ResetController(ActivityIntervalRepository activityIntervalRepository, UserService userService, UserRepository userRepository, EditLocationRepository editLocationRepository, EventTimeStampRepository eventTimeStampRepository, AllEventsRepository allEventsRepository) {
+    ResetController(ActivityIntervalRepository activityIntervalRepository, UserService userService, UserRepository userRepository, EditLocationRepository editLocationRepository, EventTimeStampRepository eventTimeStampRepository, ActivityEntryRepository activityEntryRepository) {
         this.ActivityIntervalRepository = activityIntervalRepository;
         this.userRepository = userRepository;
         this.userService = userService;
         this.editLocationRepository = editLocationRepository;
         this.eventTimeStampRepository = eventTimeStampRepository;
-        this.allEventsRepository = allEventsRepository;
+        this.activityEntryRepository = activityEntryRepository;
     }
 
     @PostMapping("/reset-database")
@@ -190,20 +190,20 @@ public class ResetController {
         int NUMBER_OF_EVENTS = 1000;
 
         Iterable<User> users = this.userRepository.findAll();
-        List<AllEvents> events = new ArrayList<>();
+        List<ActivityEntry> events = new ArrayList<>();
 
         for (User user : users) {
             for (int i = 0; i < NUMBER_OF_EVENTS; i++) {
                 Instant instant = Instant.ofEpochSecond(spanStart + offset);
                 String eventType = EventType.getAllTypes()[getRandomNumberInRange(0, EventType.getAllTypes().length)].toString();
-                AllEvents event = new AllEvents(instant, user, eventType, "","");
+                ActivityEntry event = new ActivityEntry(instant, user, eventType, "","");
                 events.add(event);
 
                 Duration randomDuration = Duration.ofMillis(getRandomNumberInRange(20, 200));
                 spanStart = spanStart + randomDuration.toMillis();
             }
         }
-        this.allEventsRepository.saveAll(events);
+        this.activityEntryRepository.saveAll(events);
 
         return new ResponseEntity<>("OK", HttpStatus.OK);
     }

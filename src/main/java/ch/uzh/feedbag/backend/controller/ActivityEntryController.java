@@ -1,138 +1,69 @@
 package ch.uzh.feedbag.backend.controller;
 
-import ch.uzh.feedbag.backend.entity.*;
-import ch.uzh.feedbag.backend.repository.ActivityIntervalRepository;
+import ch.uzh.feedbag.backend.entity.ActivityEntry;
+import ch.uzh.feedbag.backend.entity.User;
+import ch.uzh.feedbag.backend.repository.ActivityEntryRepository;
 import ch.uzh.feedbag.backend.service.UserService;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @RestController
 public class ActivityEntryController {
 
-    private ActivityIntervalRepository repository;
+    private ActivityEntryRepository repository;
     private UserService userService;
 
-    ActivityEntryController(ActivityIntervalRepository repository, UserService userService) {
+    ActivityEntryController(ActivityEntryRepository repository, UserService userService) {
         this.repository = repository;
         this.userService = userService;
     }
 
-    @GetMapping("/activity/all")
-    ResponseEntity<?> all(@RequestHeader(name = "Authorization") String token /*@RequestParam int start, @RequestParam int getEnd*/) {
+    @GetMapping("/load_events")
+    ResponseEntity<?> getNextEvents(@RequestHeader(name = "Authorization") String token, @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date date, @RequestParam("direction") String direction) {
+        Instant instant = date.toInstant();
         User user = this.userService.findByToken(token);
 
-/*
-        System.out.println(start);
-        System.out.println(getEnd);
+        List<ActivityEntry> activityEntries;
+        if (direction.equals("next")) {
+            activityEntries = repository.findNextEvents(user, instant);
+        } else {
+            activityEntries = repository.findPreviousEvents(user, instant);
+            Collections.reverse(activityEntries);
+        }
 
- */
-        List<ActivityInterval> acitivites = repository.findByUser(user);
-
-        return new ResponseEntity<>(acitivites, HttpStatus.OK);
+        return new ResponseEntity<>(activityEntries, HttpStatus.OK);
     }
 
+    @GetMapping("/event/show")
+    ResponseEntity<?> eventShow(@RequestHeader(name = "Authorization") String token, @RequestParam("id") Long id) {
 
-    @GetMapping("/activity/aggregated")
-    ResponseEntity<?> aggregated(@RequestHeader(name = "Authorization") String token, @RequestParam("start") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date startDate, @RequestParam("end") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate) {
+        Optional<ActivityEntry> event = repository.findById(id);
 
-        //TODO: Fix Deprication
-        startDate.setHours(0);
-        startDate.setMinutes(0);
-        startDate.setSeconds(0);
+        if (event.isPresent()) {
+            ActivityEntry activityEntry = event.get();
 
-        endDate.setHours(23);
-        endDate.setMinutes(59);
-        endDate.setSeconds(59);
-
-        Instant start = startDate.toInstant();
-        Instant end = endDate.toInstant();
-
-        User user = this.userService.findByToken(token);
-
-        List<AggregatedActivity> aggregatedActivities = repository.aggregate(user, start, end);
-
-        // sort by date
-        long numberOfDaysBetween = ChronoUnit.DAYS.between(start, end);
-
-        Map<String, Map> days = new HashMap<>();
-
-        for (long i = 0; i <= numberOfDaysBetween; i++) {
-            Map<ActivityType, Integer> dayMap = new HashMap<>();
-
-            for (ActivityType activityType : ActivityType.getAllTypes()) {
-                dayMap.put(activityType, 0);
-            }
-
-            days.put(startDate.toGMTString(), dayMap);
-
-            // add a day
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(startDate);
-            cal.add(Calendar.DATE, 1); //minus number would decrement the days
-            startDate = cal.getTime();
-        }
-
-        for (AggregatedActivity aggregate : aggregatedActivities) {
-            days.get(aggregate.getDate().toGMTString()).put(aggregate.getType(), aggregate.getDuration());
-        }
-
-        int total = 0;
-        Map<ActivityType, Integer> aggregated = new HashMap<>();
-        for (ActivityType activityType : ActivityType.getAllTypes()) {
-            aggregated.put(activityType, 0);
-        }
-
-        // Aggregate
-        for (Map.Entry<String, Map> entry : days.entrySet()) {
-            for (ActivityType activityType : ActivityType.getAllTypes()) {
-                Integer value = (Integer) entry.getValue().get(activityType);
-                total += value;
-                aggregated.put(activityType, value + aggregated.get(activityType));
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+            try {
+                String json = mapper.writeValueAsString(activityEntry);
+                return new ResponseEntity<>(json, HttpStatus.OK);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
             }
         }
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("days", days);
-        result.put("aggregated", aggregated);
-        result.put("total", total);
-
-        //List<AggregatedActivity> aggregated = new ArrayList<>();
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-
-    @GetMapping("/activity/heatmap")
-    ResponseEntity<?> tddCycles(@RequestHeader(name = "Authorization") String token, @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate) {
-        User user = this.userService.findByToken(token);
-        int numberOfWeeks = 18;
-
-        //TODO: Fix Deprication
-        endDate.setHours(23);
-        endDate.setMinutes(59);
-        endDate.setSeconds(59);
-
-        Date startDate = (Date) endDate.clone();
-        startDate.setDate(-7 * numberOfWeeks);
-        startDate.setHours(0);
-        startDate.setMinutes(0);
-        startDate.setSeconds(0);
-
-        Instant start = startDate.toInstant();
-        Instant end = endDate.toInstant();
-
-        List<ActivityHeatmapEntry> heatmapEntries = repository.findHeatmapByUser(user, start, end);
-
-        return new ResponseEntity<>(heatmapEntries, HttpStatus.OK);
-    }
-
-    public static long betweenDates(Date firstDate, Date secondDate) {
-        return ChronoUnit.DAYS.between(firstDate.toInstant(), secondDate.toInstant());
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 }

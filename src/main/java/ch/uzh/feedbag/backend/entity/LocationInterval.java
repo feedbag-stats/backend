@@ -1,38 +1,47 @@
 package ch.uzh.feedbag.backend.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import java.time.Instant;
+import javax.persistence.*;
 
 @Entity
 @Table(name="LocationInterval")
 public class LocationInterval extends BaseInterval {
-	
-	@ManyToOne(optional=false)
-	private final EditLocation location;
 
-	public LocationInterval(Instant begin, Instant end, EditLocation location, User user) {
-		super(begin, end, user);
-		this.location = location;
-	}
- 
+	@Column
+	private String location;
+
+	@Column(nullable=false)
+	@Enumerated(EnumType.STRING)
+	private LocationLevel level;
+
+	public LocationInterval() {}
+
 	@Override
 	public boolean canMerge(BaseInterval i) {
-		if(!(i instanceof LocationInterval)) return false;
-		LocationInterval interval = (LocationInterval) i;
-		boolean locationMatch = location.equals(interval.location());
-		boolean intervalOverlap = canMerge(i.getBegin()) || canMerge(i.getEnd()) || interval.contains(this);
-		return locationMatch && intervalOverlap;
+		return false;
 	}
 
 	@Override
 	public boolean canMerge(Instant i) {
-		return begin.compareTo(i) >= 0 && end.compareTo(i) <= 0;
+		return false;
 	}
-	
-	public EditLocation location() {
+
+	public LocationInterval(Instant begin, Instant end, String location, User user, LocationLevel level) {
+		super(begin, end, user);
+		this.location = location;
+		this.level = level;
+	}
+
+	public String getLocation() {
 		return location;
+	}
+
+	public LocationLevel getLevel() {
+		return level;
+	}
+
+	public String toString() {
+		return "LocationInterval<"+begin+"-"+end+" level: "+level+" location: "+location+">";
 	}
 
 }

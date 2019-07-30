@@ -1,7 +1,7 @@
 package ch.uzh.feedbag.backend.controller;
 
 import ch.uzh.feedbag.backend.entity.*;
-import ch.uzh.feedbag.backend.repository.AllEventsRepository;
+import ch.uzh.feedbag.backend.repository.ActivityEntryRepository;
 import ch.uzh.feedbag.backend.repository.DailyVariousStatsRepository;
 import ch.uzh.feedbag.backend.service.UserService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -17,20 +17,17 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 @RestController
 public class GlobalStatisticsController {
 
     private DailyVariousStatsRepository dailyVariousStatsRepository;
-    private AllEventsRepository allEventsRepository;
+    private ActivityEntryRepository activityEntryRepository;
     private UserService userService;
 
-    GlobalStatisticsController(DailyVariousStatsRepository dailyVariousStatsRepository, AllEventsRepository allEventsRepository, UserService userService) {
+    GlobalStatisticsController(DailyVariousStatsRepository dailyVariousStatsRepository, ActivityEntryRepository activityEntryRepository, UserService userService) {
         this.dailyVariousStatsRepository = dailyVariousStatsRepository;
-        this.allEventsRepository = allEventsRepository;
+        this.activityEntryRepository = activityEntryRepository;
         this.userService = userService;
     }
 
@@ -95,7 +92,7 @@ public class GlobalStatisticsController {
 
         Map<Integer, Map> statistics = new HashMap<>();
 
-        List<AggregatedEventsVersion> aggregatedEventsVersions = allEventsRepository.findAggregatedVersionDay(start, end);
+        List<AggregatedEventsVersion> aggregatedEventsVersions = activityEntryRepository.findAggregatedVersionDay(start, end);
 
         // sort by date
         long numberOfDaysBetween = ChronoUnit.DAYS.between(start, end);
