@@ -39,4 +39,7 @@ public interface ActivityIntervalRepository extends CrudRepository<ActivityInter
 			"AND a.instant <= :end " +
 			"GROUP BY cast(DATE(a.instant) as date)")
 	List<ActivityHeatmapEntry> findHeatmapByUser(@Param("user") User user, @Param("start") Instant start, @Param("end") Instant end);
+
+	@Query(value = "SELECT COUNT(a) as sum_a FROM ActivityEntry a WHERE a.user = :user GROUP BY cast(DATE(a.instant) as date) ORDER BY sum_a DESC")
+    List<Integer> findMaxActivitiesByUser(@Param("user") User user);
 }

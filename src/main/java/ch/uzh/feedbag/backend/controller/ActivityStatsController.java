@@ -17,6 +17,8 @@ import java.util.*;
 @RestController
 public class ActivityStatsController {
 
+    private static final int ACTIVITIES_TRESHOLD = 10000;
+
     private ActivityIntervalRepository repository;
     private UserService userService;
 
@@ -128,8 +130,13 @@ public class ActivityStatsController {
         Instant end = endDate.toInstant();
 
         List<ActivityHeatmapEntry> heatmapEntries = repository.findHeatmapByUser(user, start, end);
+        Integer maxActivities = repository.findMaxActivitiesByUser(user).get(0);
 
-        return new ResponseEntity<>(heatmapEntries, HttpStatus.OK);
+        Map<String, Object> result = new HashMap<>();
+        result.put("stats", heatmapEntries);
+        result.put("max", Math.min(maxActivities, ACTIVITIES_TRESHOLD));
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     public static long betweenDates(Date firstDate, Date secondDate) {

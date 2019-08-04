@@ -7,6 +7,7 @@ import ch.uzh.feedbag.backend.entity.User;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
@@ -24,4 +25,7 @@ public interface DailyTDDCyclesRepository extends CrudRepository<DailyTDDCycles,
 	List<DailyTDDCycles> findByTimespanUser(User user, LocalDate start, LocalDate end);
 
 	List<DailyTDDCycles> findByUser(User user);
+
+    @Query(value = "SELECT MAX(d.cycleCount) FROM DailyTDDCycles d WHERE d.user = :user")
+    Integer findMaxTDDCyclesByUser(@Param("user") User user);
 }

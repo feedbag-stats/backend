@@ -13,10 +13,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class TestingStatsController {
+
+    private final int TESTRUNS_THRESHOLD = 1000;
+    private final int TDD_CYCLES_THRESHOLD = 20;
 
     private DailyTDDCyclesRepository tddCyclesRepository;
     private DailyVariousStatsRepository dailyVariousStatsRepository;
@@ -37,9 +42,14 @@ public class TestingStatsController {
         LocalDate startDate = LocalDate.from(date).minusDays(7 * numberOfWeeks);
         LocalDate endDate = date;
 
-        List<DailyTDDCycles> tddCycles = tddCyclesRepository.findByTimespanUser(user,startDate,endDate);
+        List<DailyTDDCycles> tddCycles = tddCyclesRepository.findByTimespanUser(user, startDate, endDate);
+        Integer maxTDDCycles = tddCyclesRepository.findMaxTDDCyclesByUser(user);
 
-        return new ResponseEntity<>(tddCycles, HttpStatus.OK);
+        Map<String, Object> result = new HashMap<>();
+        result.put("stats", tddCycles);
+        result.put("max", Math.min(maxTDDCycles, TDD_CYCLES_THRESHOLD));
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @GetMapping("/testing/testruns")
@@ -51,8 +61,13 @@ public class TestingStatsController {
         LocalDate startDate = LocalDate.from(date).minusDays(7 * numberOfWeeks);
         LocalDate endDate = date;
 
-        List<DailyVariousStats> dailyVariousStats = dailyVariousStatsRepository.findByUserTimespan(user,startDate,endDate);
+        List<DailyVariousStats> dailyVariousStats = dailyVariousStatsRepository.findByUserTimespan(user, startDate, endDate);
+        Integer maxTestRuns = dailyVariousStatsRepository.findMaxTestRunsByUser(user);
 
-        return new ResponseEntity<>(dailyVariousStats, HttpStatus.OK);
+        Map<String, Object> result = new HashMap<>();
+        result.put("stats", dailyVariousStats);
+        result.put("max", Math.min(maxTestRuns, TESTRUNS_THRESHOLD));
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }

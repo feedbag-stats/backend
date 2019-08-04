@@ -68,4 +68,6 @@ public interface DailyVariousStatsRepository extends CrudRepository<DailyVarious
             "AND d.date <= :endDate")
     AggregatedDailyVariousStats findByTimespanAggregated(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
+    @Query(value = "SELECT MAX(d.testsRun) FROM DailyVariousStats d WHERE d.user = :user")
+    Integer findMaxTestRunsByUser(@Param("user") User user);
 }
