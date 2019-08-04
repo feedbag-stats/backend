@@ -65,6 +65,7 @@ public class ActivityStatsController {
         long numberOfDaysBetween = ChronoUnit.DAYS.between(start, end);
 
         Map<String, Map> days = new HashMap<>();
+        List<String> orderedDays = new ArrayList<>();
 
         for (long i = 0; i <= numberOfDaysBetween; i++) {
             Map<ActivityType, Integer> dayMap = new HashMap<>();
@@ -74,6 +75,7 @@ public class ActivityStatsController {
             }
 
             days.put(startDate.toGMTString(), dayMap);
+            orderedDays.add(startDate.toGMTString());
 
             // add a day
             Calendar cal = Calendar.getInstance();
@@ -84,6 +86,11 @@ public class ActivityStatsController {
 
         for (AggregatedActivity aggregate : aggregatedActivities) {
             days.get(aggregate.getDate().toGMTString()).put(aggregate.getType(), aggregate.getDuration());
+        }
+
+        List<Map<ActivityType,Integer>> typeDays = new ArrayList<>();
+        for (String day : orderedDays) {
+            typeDays.add(days.get(day));
         }
 
         int total = 0;
@@ -102,7 +109,8 @@ public class ActivityStatsController {
         }
 
         Map<String, Object> result = new HashMap<>();
-        result.put("days", days);
+        result.put("days", orderedDays);
+        result.put("typeDays", typeDays);
         result.put("aggregated", aggregated);
         result.put("total", total);
 
