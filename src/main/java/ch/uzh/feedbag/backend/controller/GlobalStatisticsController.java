@@ -72,7 +72,7 @@ public class GlobalStatisticsController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
 
-        int numberOfWeeks = 4;
+        int numberOfWeeks = 24;
 
         //TODO: Fix Deprication
         endDate.setHours(23);
