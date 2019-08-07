@@ -70,7 +70,7 @@ public class ActivityStatsController {
         for (long i = 0; i <= numberOfDaysBetween; i++) {
             Map<ActivityType, Integer> dayMap = new HashMap<>();
 
-            for (ActivityType activityType : ActivityType.getAllTypes()) {
+            for (ActivityType activityType : ActivityType.getStatsTypes()) {
                 dayMap.put(activityType, 0);
             }
 
@@ -88,20 +88,30 @@ public class ActivityStatsController {
             days.get(aggregate.getDate().toGMTString()).put(aggregate.getType(), aggregate.getDuration());
         }
 
-        List<Map<ActivityType,Integer>> typeDays = new ArrayList<>();
+        // subtract write, debug and testing from active
+            for (String day : orderedDays) {
+            Integer amountActive = (Integer) days.get(day).get(ActivityType.ACTIVE);
+            Integer amountWrite = (Integer) days.get(day).get(ActivityType.WRITE);
+            Integer amountDebug = (Integer) days.get(day).get(ActivityType.DEBUG);
+            Integer amountTestingstate = (Integer) days.get(day).get(ActivityType.TESTINGSTATE);
+            amountActive = Math.max((amountActive - amountWrite - amountDebug - amountTestingstate), 0);
+            days.get(day).put(ActivityType.ACTIVE, amountActive);
+        }
+
+        List<Map<ActivityType, Integer>> typeDays = new ArrayList<>();
         for (String day : orderedDays) {
             typeDays.add(days.get(day));
         }
 
         int total = 0;
         Map<ActivityType, Integer> aggregated = new HashMap<>();
-        for (ActivityType activityType : ActivityType.getAllTypes()) {
+        for (ActivityType activityType : ActivityType.getStatsTypes()) {
             aggregated.put(activityType, 0);
         }
 
         // Aggregate
         for (Map.Entry<String, Map> entry : days.entrySet()) {
-            for (ActivityType activityType : ActivityType.getAllTypes()) {
+            for (ActivityType activityType : ActivityType.getStatsTypes()) {
                 Integer value = (Integer) entry.getValue().get(activityType);
                 total += value;
                 aggregated.put(activityType, value + aggregated.get(activityType));

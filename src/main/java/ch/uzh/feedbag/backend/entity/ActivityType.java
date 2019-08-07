@@ -48,4 +48,9 @@ public enum ActivityType {
         ActivityType[] _a = new ActivityType[]{ACTIVE, WRITE, TESTRUN, DEBUG, TESTINGSTATE};
         return _a;
     }
+
+    public static ActivityType[] getStatsTypes() {
+        ActivityType[] _a = new ActivityType[]{ACTIVE, WRITE, DEBUG, TESTINGSTATE};
+        return _a;
+    }
 }
