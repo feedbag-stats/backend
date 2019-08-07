@@ -1,41 +1,45 @@
 #!/bin/bash
 
-echo "\nnew:"
+# usage: zipWatcher.sh
+
+JAR="/path/to/jar"
+ZIP_FOLDER="zips"
+SAVE_FILE="list.txt"
+
+if [ ! -f $SAVE_FILE ]; then
+    touch $SAVE_FILE
+fi
+
+#run only a single instance
+LOCK="/tmp/zipWatcher.lock"
+if [ -f $LOCK ]; then
+    echo "Already running!"
+    exit 0
+fi
+touch $LOCK
+
+PROCESSOR="java -jar ${JAR}"
+LOCATION="$(pwd)"
+
+echo "new:"
 
 #find all files of first argument input and put it into a temp file
-find $1 | sort | cut -d "/" -f-2,3,4,5,6- > temp.txt
+find $ZIP_FOLDER | sort | cut -d "/" -f-2,3,4,5,6- > temp.txt
 
 # find all added files in argument 1 compared to argument 2
-grep -v -F -x -f $2 temp.txt | grep ".*zip"
+diff --new-line-format="" --unchanged-line-format="" <(sort temp.txt) <(sort $SAVE_FILE) | grep ".*zip" | while read -r ZIP ; do
+# diff -a --suppress-common-lines -y $2 temp.txt | grep ".*zip" | while read -r ZIP ; do
+    #for each line
+    echo "$PROCESSOR add $LOCATION/$ZIP"
+done
 
-# other alternatives which did not precicly work 
-# diff -rq $1 $2 -x '$1.zip' | grep $1 | grep -E "^Only in $1" | sed -n 's/://p' | awk '{print $3"/"$4}'
-# OUTPUT=$(rsync --recursive --delete --links --checksum --verbose --dry-run $1 $2)
-# echo "${OUTPUT}" | grep -v '^deleting.*zip' | grep '.*zip'
-#comm -2 temp.txt $2  
+echo "removed:"
 
-
-echo "\nremoved:"
-
-# find all removed files in argument 1 compared to argument 2
-grep -v -F -x -f temp.txt $2 | grep ".*zip"
+echo "$PROCESSOR remove"
 
 # put content of temp file of new context in the file with the old context, because after the check it is considered as old.
-cat temp.txt > $2
+cat temp.txt > $SAVE_FILE
 
 # remove temp file
 rm temp.txt
-
-# other alternatives which did not precicly work 
-# diff -rq  $1 $2 -x '$2.zip' | grep $2 | grep -E "^Only in $2" | sed -n 's/://p' | awk '{print $3"/"$4}'
-# echo "${OUTPUT}" | grep '^deleting.*zip' | grep ' .*zip' | awk '{print $2}'
-#comm -1 temp.txt $2 | grep ".*zip"
-
-
-
-
-
-# find only modified files 
-# echo "\nmodified:"
-# diff -rq $1 $2 -x '$2.zip' | grep $1 | grep -E "^Files $1" | awk '{print $2}'
-
+rm $LOCK
